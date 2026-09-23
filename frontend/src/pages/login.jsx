@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -19,13 +21,18 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
 
     try {
       const response = await api.post("/auth/login", formData);
 
       setMessage(response.data.message);
+
+      navigate("/dashboard");
     } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
+      setMessage(
+        error.response?.data?.message || "Login failed"
+      );
     }
   };
 
