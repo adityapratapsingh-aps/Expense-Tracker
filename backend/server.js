@@ -3,7 +3,12 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/authRoutes");
+
 const app = express();
+
+connectDB();
 
 app.use(cors({
   origin: "http://localhost:5173",
@@ -12,6 +17,8 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Expense Tracker API is running" });
