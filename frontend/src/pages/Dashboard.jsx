@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import ExpenseForm from "../components/ExpenseForm";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -30,25 +31,31 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold">
-          Expense Tracker Dashboard
-        </h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">
+              Expense Tracker Dashboard
+            </h1>
 
-        <p className="mt-4">
-          User ID: {userId}
-        </p>
+            <p className="mt-2 text-gray-600">
+              User ID: {userId}
+            </p>
+          </div>
 
-        <button
-          onClick={handleLogout}
-          className="mt-6 bg-black text-white px-6 py-2 rounded-lg"
-        >
-          Logout
-        </button>
+          <button
+            onClick={handleLogout}
+            className="bg-black text-white px-6 py-2 rounded-lg"
+          >
+            Logout
+          </button>
+        </div>
+
+        <ExpenseForm />
 
         {message && (
-          <p className="mt-4">
+          <p className="mt-4 text-center">
             {message}
           </p>
         )}
