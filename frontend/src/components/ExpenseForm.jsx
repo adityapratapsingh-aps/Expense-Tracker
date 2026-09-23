@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../services/api";
 
-function ExpenseForm() {
+function ExpenseForm({ onExpenseAdded }) {
   const [formData, setFormData] = useState({
     title: "",
     amount: "",
@@ -32,6 +32,10 @@ function ExpenseForm() {
         category: "",
         date: ""
       });
+
+      if (onExpenseAdded) {
+        onExpenseAdded();
+      }
     } catch (error) {
       setMessage(
         error.response?.data?.message || "Failed to add expense"

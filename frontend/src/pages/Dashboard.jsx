@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import ExpenseForm from "../components/ExpenseForm";
+import ExpenseList from "../components/ExpenseList";
 
 function Dashboard() {
   const navigate = useNavigate();
+
   const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     const getProfile = async () => {
@@ -28,6 +31,10 @@ function Dashboard() {
     } catch (error) {
       setMessage("Logout failed");
     }
+  };
+
+  const handleExpenseAdded = () => {
+    setRefresh(refresh + 1);
   };
 
   return (
@@ -52,7 +59,9 @@ function Dashboard() {
           </button>
         </div>
 
-        <ExpenseForm />
+        <ExpenseForm onExpenseAdded={handleExpenseAdded} />
+
+        <ExpenseList refresh={refresh} />
 
         {message && (
           <p className="mt-4 text-center">
