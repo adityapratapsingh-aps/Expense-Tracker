@@ -4,18 +4,59 @@ const createExpense = async (req, res) => {
   try {
     const { title, amount, category, date } = req.body;
 
-    if (!title || !amount || !category || !date) {
+    if (!title || !title.trim()) {
       return res.status(400).json({
-        message: "All fields are required"
+        message: "Expense title is required"
+      });
+    }
+
+    if (amount === undefined || amount === "") {
+      return res.status(400).json({
+        message: "Amount is required"
+      });
+    }
+
+    if (Number(amount) <= 0) {
+      return res.status(400).json({
+        message: "Amount must be greater than 0"
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        message: "Category is required"
+      });
+    }
+
+    if (!date) {
+      return res.status(400).json({
+        message: "Date is required"
+      });
+    }
+
+    const expenseDate = new Date(date);
+
+    if (isNaN(expenseDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid date"
+      });
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (expenseDate > today) {
+      return res.status(400).json({
+        message: "Date cannot be in the future"
       });
     }
 
     const expense = await Expense.create({
       user: req.user.id,
-      title,
-      amount,
+      title: title.trim(),
+      amount: Number(amount),
       category,
-      date
+      date: expenseDate
     });
 
     res.status(201).json({
@@ -49,6 +90,53 @@ const updateExpense = async (req, res) => {
   try {
     const { title, amount, category, date } = req.body;
 
+    if (!title || !title.trim()) {
+      return res.status(400).json({
+        message: "Expense title is required"
+      });
+    }
+
+    if (amount === undefined || amount === "") {
+      return res.status(400).json({
+        message: "Amount is required"
+      });
+    }
+
+    if (Number(amount) <= 0) {
+      return res.status(400).json({
+        message: "Amount must be greater than 0"
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        message: "Category is required"
+      });
+    }
+
+    if (!date) {
+      return res.status(400).json({
+        message: "Date is required"
+      });
+    }
+
+    const expenseDate = new Date(date);
+
+    if (isNaN(expenseDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid date"
+      });
+    }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (expenseDate > today) {
+      return res.status(400).json({
+        message: "Date cannot be in the future"
+      });
+    }
+
     const expense = await Expense.findOne({
       _id: req.params.id,
       user: req.user.id
@@ -60,10 +148,10 @@ const updateExpense = async (req, res) => {
       });
     }
 
-    expense.title = title;
-    expense.amount = amount;
+    expense.title = title.trim();
+    expense.amount = Number(amount);
     expense.category = category;
-    expense.date = date;
+    expense.date = expenseDate;
 
     await expense.save();
 

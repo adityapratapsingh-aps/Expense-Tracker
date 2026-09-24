@@ -10,16 +10,55 @@ function ExpenseForm({ onExpenseAdded }) {
   });
 
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+
+    setError("");
+    setMessage("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError("");
+    setMessage("");
+
+    if (!formData.title.trim()) {
+      setError("Expense title is required");
+      return;
+    }
+
+    if (!formData.amount) {
+      setError("Amount is required");
+      return;
+    }
+
+    if (Number(formData.amount) <= 0) {
+      setError("Amount must be greater than 0");
+      return;
+    }
+
+    if (!formData.category) {
+      setError("Please select a category");
+      return;
+    }
+
+    if (!formData.date) {
+      setError("Date is required");
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (formData.date > today) {
+      setError("Date cannot be in the future");
+      return;
+    }
 
     try {
       const response = await api.post("/expenses", formData);
@@ -37,7 +76,7 @@ function ExpenseForm({ onExpenseAdded }) {
         onExpenseAdded();
       }
     } catch (error) {
-      setMessage(
+      setError(
         error.response?.data?.message || "Failed to add expense"
       );
     }
@@ -87,6 +126,8 @@ function ExpenseForm({ onExpenseAdded }) {
               value={formData.amount}
               onChange={handleChange}
               placeholder="0.00"
+              min="0"
+              step="0.01"
               className="w-full border border-slate-300 rounded-lg pl-9 pr-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200 transition"
             />
           </div>
@@ -123,6 +164,7 @@ function ExpenseForm({ onExpenseAdded }) {
             name="date"
             value={formData.date}
             onChange={handleChange}
+            max={new Date().toISOString().split("T")[0]}
             className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200 transition"
           />
         </div>
@@ -135,8 +177,14 @@ function ExpenseForm({ onExpenseAdded }) {
         </button>
       </form>
 
+      {error && (
+        <p className="mt-4 bg-red-50 border border-red-100 text-red-600 rounded-lg px-4 py-3 text-sm text-center">
+          {error}
+        </p>
+      )}
+
       {message && (
-        <p className="mt-4 text-center text-sm text-green-600">
+        <p className="mt-4 bg-green-50 border border-green-100 text-green-600 rounded-lg px-4 py-3 text-sm text-center">
           {message}
         </p>
       )}

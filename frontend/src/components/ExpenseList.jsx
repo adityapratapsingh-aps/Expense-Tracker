@@ -5,6 +5,7 @@ function ExpenseList({ refresh }) {
   const [expenses, setExpenses] = useState([]);
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [editError, setEditError] = useState("");
 
   const [editData, setEditData] = useState({
     title: "",
@@ -44,6 +45,8 @@ function ExpenseList({ refresh }) {
 
   const handleEdit = (expense) => {
     setEditingId(expense._id);
+    setEditError("");
+    setMessage("");
 
     setEditData({
       title: expense.title,
@@ -58,10 +61,48 @@ function ExpenseList({ refresh }) {
       ...editData,
       [e.target.name]: e.target.value
     });
+
+    setEditError("");
+    setMessage("");
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    setEditError("");
+    setMessage("");
+
+    if (!editData.title.trim()) {
+      setEditError("Expense title is required");
+      return;
+    }
+
+    if (!editData.amount) {
+      setEditError("Amount is required");
+      return;
+    }
+
+    if (Number(editData.amount) <= 0) {
+      setEditError("Amount must be greater than 0");
+      return;
+    }
+
+    if (!editData.category) {
+      setEditError("Please select a category");
+      return;
+    }
+
+    if (!editData.date) {
+      setEditError("Date is required");
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    if (editData.date > today) {
+      setEditError("Date cannot be in the future");
+      return;
+    }
 
     try {
       const response = await api.put(
@@ -80,8 +121,9 @@ function ExpenseList({ refresh }) {
       );
 
       setEditingId(null);
+      setEditError("");
     } catch (error) {
-      setMessage(
+      setEditError(
         error.response?.data?.message || "Failed to update expense"
       );
     }
@@ -89,6 +131,7 @@ function ExpenseList({ refresh }) {
 
   const handleCancel = () => {
     setEditingId(null);
+    setEditError("");
   };
 
   return (
@@ -108,7 +151,11 @@ function ExpenseList({ refresh }) {
         <div className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
           ₹
           {expenses
-            .reduce((total, expense) => total + Number(expense.amount), 0)
+            .reduce(
+              (total, expense) =>
+                total + Number(expense.amount),
+              0
+            )
             .toLocaleString("en-IN")}
         </div>
       </div>
@@ -137,7 +184,10 @@ function ExpenseList({ refresh }) {
               className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
             >
               {editingId === expense._id ? (
-                <form onSubmit={handleUpdate} className="space-y-4">
+                <form
+                  onSubmit={handleUpdate}
+                  className="space-y-4"
+                >
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Expense Title
@@ -162,6 +212,8 @@ function ExpenseList({ refresh }) {
                       name="amount"
                       value={editData.amount}
                       onChange={handleChange}
+                      min="0"
+                      step="0.01"
                       className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
                     />
                   </div>
@@ -177,15 +229,33 @@ function ExpenseList({ refresh }) {
                       onChange={handleChange}
                       className="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
                     >
-                      <option value="">Select category</option>
-                      <option value="Food">Food</option>
-                      <option value="Travel">Travel</option>
-                      <option value="Shopping">Shopping</option>
-                      <option value="Bills">Bills</option>
+                      <option value="">
+                        Select category
+                      </option>
+
+                      <option value="Food">
+                        Food
+                      </option>
+
+                      <option value="Travel">
+                        Travel
+                      </option>
+
+                      <option value="Shopping">
+                        Shopping
+                      </option>
+
+                      <option value="Bills">
+                        Bills
+                      </option>
+
                       <option value="Entertainment">
                         Entertainment
                       </option>
-                      <option value="Other">Other</option>
+
+                      <option value="Other">
+                        Other
+                      </option>
                     </select>
                   </div>
 
@@ -199,9 +269,18 @@ function ExpenseList({ refresh }) {
                       name="date"
                       value={editData.date}
                       onChange={handleChange}
+                      max={new Date()
+                        .toISOString()
+                        .split("T")[0]}
                       className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
                     />
                   </div>
+
+                  {editError && (
+                    <p className="bg-red-50 border border-red-100 text-red-600 rounded-lg px-4 py-3 text-sm text-center">
+                      {editError}
+                    </p>
+                  )}
 
                   <div className="flex gap-3">
                     <button
@@ -242,7 +321,10 @@ function ExpenseList({ refresh }) {
                     </div>
 
                     <p className="text-xl font-bold text-slate-900">
-                      ₹{Number(expense.amount).toLocaleString("en-IN")}
+                      ₹
+                      {Number(expense.amount).toLocaleString(
+                        "en-IN"
+                      )}
                     </p>
                   </div>
 

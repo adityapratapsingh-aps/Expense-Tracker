@@ -6,13 +6,41 @@ const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !name.trim()) {
       return res.status(400).json({
-        message: "All fields are required"
+        message: "Name is required"
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        message: "Email is required"
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Please enter a valid email address"
+      });
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required"
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters"
+      });
+    }
+
+    const existingUser = await User.findOne({
+      email: email.toLowerCase().trim()
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -23,8 +51,8 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword
     });
 
@@ -47,13 +75,35 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (!email || !email.trim()) {
       return res.status(400).json({
-        message: "Email and password are required"
+        message: "Email is required"
       });
     }
 
-    const user = await User.findOne({ email });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: "Please enter a valid email address"
+      });
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required"
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters"
+      });
+    }
+
+    const user = await User.findOne({
+      email: email.toLowerCase().trim()
+    });
 
     if (!user) {
       return res.status(400).json({
@@ -61,7 +111,10 @@ const login = async (req, res) => {
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isPasswordValid) {
       return res.status(400).json({
