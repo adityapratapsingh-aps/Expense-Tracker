@@ -2,7 +2,7 @@ const Expense = require("../models/Expense");
 
 const createExpense = async (req, res) => {
   try {
-    const { title, amount, category, date } = req.body;
+    const { title, amount, category, type, date } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({
@@ -25,6 +25,18 @@ const createExpense = async (req, res) => {
     if (!category) {
       return res.status(400).json({
         message: "Category is required"
+      });
+    }
+
+    if (!type) {
+      return res.status(400).json({
+        message: "Type is required"
+      });
+    }
+
+    if (!["Credit", "Debit"].includes(type)) {
+      return res.status(400).json({
+        message: "Type must be Credit or Debit"
       });
     }
 
@@ -56,6 +68,7 @@ const createExpense = async (req, res) => {
       title: title.trim(),
       amount: Number(amount),
       category,
+      type,
       date: expenseDate
     });
 
@@ -88,7 +101,7 @@ const getExpenses = async (req, res) => {
 
 const updateExpense = async (req, res) => {
   try {
-    const { title, amount, category, date } = req.body;
+    const { title, amount, category, type, date } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({
@@ -111,6 +124,18 @@ const updateExpense = async (req, res) => {
     if (!category) {
       return res.status(400).json({
         message: "Category is required"
+      });
+    }
+
+    if (!type) {
+      return res.status(400).json({
+        message: "Type is required"
+      });
+    }
+
+    if (!["Credit", "Debit"].includes(type)) {
+      return res.status(400).json({
+        message: "Type must be Credit or Debit"
       });
     }
 
@@ -151,6 +176,7 @@ const updateExpense = async (req, res) => {
     expense.title = title.trim();
     expense.amount = Number(amount);
     expense.category = category;
+    expense.type = type;
     expense.date = expenseDate;
 
     await expense.save();

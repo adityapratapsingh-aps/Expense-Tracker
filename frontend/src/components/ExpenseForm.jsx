@@ -6,6 +6,7 @@ function ExpenseForm({ onExpenseAdded }) {
     title: "",
     amount: "",
     category: "",
+    type: "Debit",
     date: ""
   });
 
@@ -48,6 +49,11 @@ function ExpenseForm({ onExpenseAdded }) {
       return;
     }
 
+    if (!formData.type) {
+      setError("Please select type");
+      return;
+    }
+
     if (!formData.date) {
       setError("Date is required");
       return;
@@ -69,6 +75,7 @@ function ExpenseForm({ onExpenseAdded }) {
         title: "",
         amount: "",
         category: "",
+        type: "Debit",
         date: ""
       });
 
@@ -131,6 +138,22 @@ function ExpenseForm({ onExpenseAdded }) {
               className="w-full border border-slate-300 rounded-lg pl-9 pr-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200 transition"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Type
+          </label>
+
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200 transition"
+          >
+            <option value="Debit">Debit</option>
+            <option value="Credit">Credit</option>
+          </select>
         </div>
 
         <div>
