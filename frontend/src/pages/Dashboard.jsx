@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
+import ExpenseSummary from "../components/ExpenseSummary";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -70,6 +71,8 @@ function Dashboard() {
             Your Expenses
           </h2>
         </div>
+
+        <ExpenseSummary refresh={refresh} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div>
