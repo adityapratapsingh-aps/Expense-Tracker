@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import api from "../services/api";
 
 function ExpenseList({ refresh }) {
   const [expenses, setExpenses] = useState([]);
-  const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editError, setEditError] = useState("");
 
@@ -27,7 +27,9 @@ function ExpenseList({ refresh }) {
       const response = await api.get("/expenses");
       setExpenses(response.data.expenses);
     } catch (error) {
-      setMessage("Failed to load expenses");
+      toast.error(
+        error.response?.data?.message || "Failed to load expenses"
+      );
     }
   };
 
@@ -39,13 +41,22 @@ function ExpenseList({ refresh }) {
     try {
       const response = await api.delete(`/expenses/${id}`);
 
-      setMessage(response.data.message);
+      toast.success(response.data.message);
 
       setExpenses(
         expenses.filter((expense) => expense._id !== id)
       );
+
+      const remainingExpenses = expenses.length - 1;
+      const newTotalPages = Math.ceil(
+        remainingExpenses / expensesPerPage
+      );
+
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
     } catch (error) {
-      setMessage(
+      toast.error(
         error.response?.data?.message || "Failed to delete expense"
       );
     }
@@ -54,7 +65,6 @@ function ExpenseList({ refresh }) {
   const handleEdit = (expense) => {
     setEditingId(expense._id);
     setEditError("");
-    setMessage("");
 
     setEditData({
       title: expense.title,
@@ -72,14 +82,12 @@ function ExpenseList({ refresh }) {
     });
 
     setEditError("");
-    setMessage("");
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     setEditError("");
-    setMessage("");
 
     if (!editData.title.trim()) {
       setEditError("Expense title is required");
@@ -124,8 +132,6 @@ function ExpenseList({ refresh }) {
         editData
       );
 
-      setMessage(response.data.message);
-
       setExpenses(
         expenses.map((expense) =>
           expense._id === editingId
@@ -136,8 +142,10 @@ function ExpenseList({ refresh }) {
 
       setEditingId(null);
       setEditError("");
+
+      toast.success(response.data.message);
     } catch (error) {
-      setEditError(
+      toast.error(
         error.response?.data?.message || "Failed to update expense"
       );
     }
@@ -174,7 +182,8 @@ function ExpenseList({ refresh }) {
     filteredExpenses.length / expensesPerPage
   );
 
-  const startIndex = (currentPage - 1) * expensesPerPage;
+  const startIndex =
+    (currentPage - 1) * expensesPerPage;
 
   const currentExpenses = filteredExpenses.slice(
     startIndex,
@@ -217,12 +226,6 @@ function ExpenseList({ refresh }) {
           <option value="Other">Other</option>
         </select>
       </div>
-
-      {message && (
-        <p className="mb-4 text-sm text-center text-green-600">
-          {message}
-        </p>
-      )}
 
       {filteredExpenses.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center shadow-sm">
@@ -269,7 +272,8 @@ function ExpenseList({ refresh }) {
 
                 <tbody>
                   {currentExpenses.map((expense) => {
-                    const expenseType = expense.type || "Debit";
+                    const expenseType =
+                      expense.type || "Debit";
 
                     return (
                       <tr
@@ -505,7 +509,9 @@ function ExpenseList({ refresh }) {
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-5">
               <button
-                onClick={() => setCurrentPage(currentPage - 1)}
+                onClick={() =>
+                  setCurrentPage(currentPage - 1)
+                }
                 disabled={currentPage === 1}
                 className="border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
               >
@@ -534,7 +540,9 @@ function ExpenseList({ refresh }) {
               </div>
 
               <button
-                onClick={() => setCurrentPage(currentPage + 1)}
+                onClick={() =>
+                  setCurrentPage(currentPage + 1)
+                }
                 disabled={currentPage === totalPages}
                 className="border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
               >
