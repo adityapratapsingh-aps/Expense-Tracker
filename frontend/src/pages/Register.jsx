@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -61,11 +63,7 @@ function Register() {
 
       setMessage(response.data.message);
 
-      setFormData({
-        name: "",
-        email: "",
-        password: ""
-      });
+      navigate("/dashboard");
     } catch (error) {
       setError(
         error.response?.data?.message || "Registration failed"
@@ -76,7 +74,6 @@ function Register() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg">
-
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
             Create Account
@@ -88,7 +85,6 @@ function Register() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-
           <div className="mb-7">
             <h2 className="text-2xl font-bold text-slate-900">
               Welcome to Expense Tracker
@@ -100,7 +96,6 @@ function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Full name
@@ -162,7 +157,6 @@ function Register() {
             >
               Create Account
             </button>
-
           </form>
 
           {error && (
@@ -196,7 +190,6 @@ function Register() {
               Login
             </Link>
           </p>
-
         </div>
       </div>
     </div>

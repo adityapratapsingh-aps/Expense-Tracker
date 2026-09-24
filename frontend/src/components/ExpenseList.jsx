@@ -7,6 +7,9 @@ function ExpenseList({ refresh }) {
   const [editingId, setEditingId] = useState(null);
   const [editError, setEditError] = useState("");
 
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+
   const [editData, setEditData] = useState({
     title: "",
     amount: "",
@@ -134,6 +137,18 @@ function ExpenseList({ refresh }) {
     setEditError("");
   };
 
+  const filteredExpenses = expenses.filter((expense) => {
+    const matchesSearch = expense.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory =
+      categoryFilter === "" ||
+      expense.category === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
@@ -160,25 +175,49 @@ function ExpenseList({ refresh }) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        <input
+          type="text"
+          placeholder="Search by title"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        />
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="w-full border border-slate-300 rounded-lg px-4 py-3 bg-white outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+        >
+          <option value="">All Categories</option>
+          <option value="Food">Food</option>
+          <option value="Travel">Travel</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Bills">Bills</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
       {message && (
         <p className="mb-4 text-sm text-center text-green-600">
           {message}
         </p>
       )}
 
-      {expenses.length === 0 ? (
+      {filteredExpenses.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center shadow-sm">
           <h3 className="text-lg font-semibold text-slate-900">
-            No expenses yet
+            No expenses found
           </h3>
 
           <p className="text-sm text-slate-500 mt-2">
-            Add your first expense using the form.
+            Try changing your search or category filter.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {expenses.map((expense) => (
+          {filteredExpenses.map((expense) => (
             <div
               key={expense._id}
               className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
@@ -232,30 +271,14 @@ function ExpenseList({ refresh }) {
                       <option value="">
                         Select category
                       </option>
-
-                      <option value="Food">
-                        Food
-                      </option>
-
-                      <option value="Travel">
-                        Travel
-                      </option>
-
-                      <option value="Shopping">
-                        Shopping
-                      </option>
-
-                      <option value="Bills">
-                        Bills
-                      </option>
-
+                      <option value="Food">Food</option>
+                      <option value="Travel">Travel</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Bills">Bills</option>
                       <option value="Entertainment">
                         Entertainment
                       </option>
-
-                      <option value="Other">
-                        Other
-                      </option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
 
