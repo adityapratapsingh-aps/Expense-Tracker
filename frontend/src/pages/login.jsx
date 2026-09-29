@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-function Login() {
+function Login({ onLogin }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -55,9 +55,17 @@ function Login() {
     try {
       const response = await api.post("/auth/login", formData);
 
+      const user = response.data.user;
+
       setMessage(response.data.message);
 
-      navigate("/dashboard");
+      onLogin(user);
+
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       setError(
         error.response?.data?.message || "Login failed"
@@ -68,7 +76,6 @@ function Login() {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg">
-
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
             Welcome Back
@@ -80,7 +87,6 @@ function Login() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-
           <div className="mb-7">
             <h2 className="text-2xl font-bold text-slate-900">
               Login to Expense Tracker
@@ -92,7 +98,6 @@ function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Email
@@ -125,7 +130,9 @@ function Login() {
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500 hover:text-slate-900"
                 >
                   {showPassword ? "Hide" : "Show"}
@@ -139,7 +146,6 @@ function Login() {
             >
               Login
             </button>
-
           </form>
 
           {error && (
@@ -166,6 +172,7 @@ function Login() {
 
           <p className="text-center text-sm text-slate-500">
             Don't have an account?{" "}
+
             <Link
               to="/register"
               className="font-semibold text-slate-900 hover:underline"
@@ -173,7 +180,6 @@ function Login() {
               Create Account
             </Link>
           </p>
-
         </div>
       </div>
     </div>
