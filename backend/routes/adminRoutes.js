@@ -3,7 +3,8 @@ const express = require("express");
 const {
   getUsers,
   blockUser,
-  unblockUser
+  unblockUser,
+  resetUserPassword
 } = require("../controllers/adminController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -30,6 +31,13 @@ router.patch(
   authMiddleware,
   authorizeRoles("admin"),
   unblockUser
+);
+
+router.patch(
+  "/users/:id/reset-password",
+  authMiddleware,
+  authorizeRoles("admin"),
+  resetUserPassword
 );
 
 module.exports = router;

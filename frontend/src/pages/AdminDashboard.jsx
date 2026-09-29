@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,6 +45,37 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleResetPassword = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to reset this user's password?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await api.patch(
+        `/admin/users/${id}/reset-password`
+      );
+
+      alert(response.data.message);
+    } catch (error) {
+      alert(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -52,15 +86,24 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Admin Dashboard
-          </h1>
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Admin Dashboard
+            </h1>
 
-          <p className="mt-1 text-gray-500">
-            Manage users and account access
-          </p>
+            <p className="mt-1 text-gray-500">
+              Manage users and account access
+            </p>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-red-700"
+          >
+            Logout
+          </button>
         </div>
 
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
@@ -128,24 +171,37 @@ const AdminDashboard = () => {
                           <span className="text-sm text-gray-400">
                             Admin
                           </span>
-                        ) : user.isBlocked ? (
-                          <button
-                            onClick={() =>
-                              handleUnblock(user._id)
-                            }
-                            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
-                          >
-                            Unblock
-                          </button>
                         ) : (
-                          <button
-                            onClick={() =>
-                              handleBlock(user._id)
-                            }
-                            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                          >
-                            Block
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            {user.isBlocked ? (
+                              <button
+                                onClick={() =>
+                                  handleUnblock(user._id)
+                                }
+                                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                              >
+                                Unblock
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleBlock(user._id)
+                                }
+                                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                              >
+                                Block
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() =>
+                                handleResetPassword(user._id)
+                              }
+                              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+                            >
+                              Reset Password
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
