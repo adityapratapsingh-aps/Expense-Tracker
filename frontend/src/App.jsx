@@ -125,7 +125,9 @@ function App() {
               user={user}
               allowedRole="user"
             >
-              <Dashboard />
+              <Dashboard
+                onLogout={() => setUser(null)}
+              />
             </ProtectedRoute>
           }
         />

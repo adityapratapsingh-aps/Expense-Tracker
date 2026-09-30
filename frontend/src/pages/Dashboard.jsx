@@ -5,7 +5,7 @@ import ExpenseForm from "../components/ExpenseForm";
 import ExpenseList from "../components/ExpenseList";
 import ExpenseSummary from "../components/ExpenseSummary";
 
-function Dashboard() {
+function Dashboard({ onLogout }) {
   const navigate = useNavigate();
 
   const [userId, setUserId] = useState("");
@@ -28,6 +28,9 @@ function Dashboard() {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
+
+      onLogout();
+
       navigate("/login");
     } catch (error) {
       setMessage("Logout failed");

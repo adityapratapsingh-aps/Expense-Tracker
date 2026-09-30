@@ -8,10 +8,22 @@ const AdminDashboard = ({ onLogout }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUsers = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const limit = 10;
+
+  const fetchUsers = async (page = currentPage) => {
     try {
-      const response = await api.get("/admin/users");
+      setLoading(true);
+
+      const response = await api.get(
+        `/admin/users?page=${page}&limit=${limit}`
+      );
+
       setUsers(response.data.users);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error(error);
     } finally {
@@ -20,13 +32,13 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchUsers(currentPage);
+  }, [currentPage]);
 
   const handleBlock = async (id) => {
     try {
       await api.patch(`/admin/users/${id}/block`);
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (error) {
       alert(
         error.response?.data?.message || "Something went wrong"
@@ -37,7 +49,7 @@ const AdminDashboard = ({ onLogout }) => {
   const handleUnblock = async (id) => {
     try {
       await api.patch(`/admin/users/${id}/unblock`);
-      fetchUsers();
+      fetchUsers(currentPage);
     } catch (error) {
       alert(
         error.response?.data?.message || "Something went wrong"
@@ -76,6 +88,18 @@ const AdminDashboard = ({ onLogout }) => {
       navigate("/admin/login");
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
@@ -231,6 +255,34 @@ const AdminDashboard = ({ onLogout }) => {
 
               </tbody>
             </table>
+
+          </div>
+
+          <div className="flex items-center justify-between border-t px-6 py-4">
+
+            <p className="text-sm text-gray-500">
+              Page {currentPage} of {totalPages}
+            </p>
+
+            <div className="flex gap-2">
+
+              <button
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+
+              <button
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+
+            </div>
 
           </div>
         </div>
