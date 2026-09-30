@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate
+} from "react-router-dom";
 
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import api from "./services/api";
 
 function App() {
@@ -16,7 +22,6 @@ function App() {
   const checkAuth = async () => {
     try {
       const response = await api.get("/auth/check");
-
       setUser(response.data.user);
     } catch (error) {
       setUser(null);
@@ -31,8 +36,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+        <p className="text-slate-600">Loading...</p>
       </div>
     );
   }
@@ -40,12 +45,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         <Route
           path="/"
           element={
             user ? (
               <Navigate
-                to={user.role === "admin" ? "/admin" : "/dashboard"}
+                to={
+                  user.role === "admin"
+                    ? "/admin"
+                    : "/dashboard"
+                }
                 replace
               />
             ) : (
@@ -56,12 +66,56 @@ function App() {
 
         <Route
           path="/login"
-          element={<Login onLogin={setUser} />}
+          element={
+            user ? (
+              <Navigate
+                to={
+                  user.role === "admin"
+                    ? "/admin"
+                    : "/dashboard"
+                }
+                replace
+              />
+            ) : (
+              <Login onLogin={setUser} />
+            )
+          }
+        />
+
+        <Route
+          path="/admin/login"
+          element={
+            user ? (
+              <Navigate
+                to={
+                  user.role === "admin"
+                    ? "/admin"
+                    : "/dashboard"
+                }
+                replace
+              />
+            ) : (
+              <AdminLogin onLogin={setUser} />
+            )
+          }
         />
 
         <Route
           path="/register"
-          element={<Register />}
+          element={
+            user ? (
+              <Navigate
+                to={
+                  user.role === "admin"
+                    ? "/admin"
+                    : "/dashboard"
+                }
+                replace
+              />
+            ) : (
+              <Register />
+            )
+          }
         />
 
         <Route
@@ -83,10 +137,18 @@ function App() {
               user={user}
               allowedRole="admin"
             >
-              <AdminDashboard />
+              <AdminDashboard
+                onLogout={() => setUser(null)}
+              />
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
+
       </Routes>
     </BrowserRouter>
   );

@@ -15,7 +15,7 @@ function Dashboard() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await api.get("/auth/profile");
+        const response = await api.get("/auth/check");
         setUserId(response.data.userId);
       } catch (error) {
         navigate("/login");

@@ -53,7 +53,6 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       message: "Server error"
     });
@@ -75,6 +74,12 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         message: "Invalid email or password"
+      });
+    }
+
+    if (user.role === "admin") {
+      return res.status(403).json({
+        message: "Please use the admin login"
       });
     }
 
@@ -121,7 +126,79 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
 
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required"
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access only"
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.status(403).json({
+        message: "Your account has been restricted by the admin"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d"
+      }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.status(200).json({
+      message: "Admin login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       message: "Server error"
     });
@@ -130,9 +207,7 @@ const login = async (req, res) => {
 
 const checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select(
-      "-password"
-    );
+    const user = await User.findById(req.user.userId).select("-password");
 
     if (!user) {
       return res.status(404).json({
@@ -152,7 +227,6 @@ const checkAuth = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       message: "Server error"
     });
@@ -172,7 +246,6 @@ const logout = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-
     res.status(500).json({
       message: "Server error"
     });
@@ -182,6 +255,7 @@ const logout = async (req, res) => {
 module.exports = {
   register,
   login,
+  adminLogin,
   checkAuth,
   logout
 };

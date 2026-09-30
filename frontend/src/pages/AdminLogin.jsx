@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-function Login({ onLogin }) {
+function AdminLogin({ onLogin }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -54,7 +54,7 @@ function Login({ onLogin }) {
 
     try {
       const response = await api.post(
-        "/auth/login",
+        "/auth/admin-login",
         formData
       );
 
@@ -64,14 +64,10 @@ function Login({ onLogin }) {
 
       onLogin(user);
 
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      navigate("/admin");
     } catch (error) {
       setError(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message || "Admin login failed"
       );
     }
   };
@@ -79,34 +75,31 @@ function Login({ onLogin }) {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg">
-
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
-            Welcome Back
+            Admin Login
           </h1>
 
           <p className="text-slate-500 mt-2">
-            Login to manage your expenses
+            Login to manage users and expenses
           </p>
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-
           <div className="mb-7">
             <h2 className="text-2xl font-bold text-slate-900">
-              User Login
+              Welcome Admin
             </h2>
 
             <p className="text-slate-500 mt-1">
-              Enter your details to continue
+              Enter your admin credentials to continue
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Email
+                Admin Email
               </label>
 
               <input
@@ -114,7 +107,7 @@ function Login({ onLogin }) {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Enter admin email"
                 className="w-full border border-slate-300 rounded-lg px-4 py-3.5 text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-100 transition"
               />
             </div>
@@ -130,7 +123,7 @@ function Login({ onLogin }) {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder="Enter admin password"
                   className="w-full border border-slate-300 rounded-lg px-4 py-3.5 pr-16 text-slate-900 placeholder:text-slate-400 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-100 transition"
                 />
 
@@ -150,9 +143,8 @@ function Login({ onLogin }) {
               type="submit"
               className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3.5 rounded-lg font-semibold transition"
             >
-              Login
+              Admin Login
             </button>
-
           </form>
 
           {error && (
@@ -178,29 +170,18 @@ function Login({ onLogin }) {
           </div>
 
           <p className="text-center text-sm text-slate-500">
-            Don't have an account?{" "}
+            Are you a normal user?{" "}
             <Link
-              to="/register"
+              to="/login"
               className="font-semibold text-slate-900 hover:underline"
             >
-              Create Account
+              User Login
             </Link>
           </p>
-
-          <p className="text-center text-sm text-slate-500 mt-4">
-            Are you an admin?{" "}
-            <Link
-              to="/admin/login"
-              className="font-semibold text-slate-900 hover:underline"
-            >
-              Admin Login
-            </Link>
-          </p>
-
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default AdminLogin;

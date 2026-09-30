@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ onLogout }) => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
@@ -70,7 +70,10 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
-      navigate("/login");
+
+      onLogout();
+
+      navigate("/admin/login");
     } catch (error) {
       console.error(error);
     }
@@ -87,6 +90,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-7xl">
+
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
@@ -108,6 +112,7 @@ const AdminDashboard = () => {
 
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           <div className="overflow-x-auto">
+
             <table className="w-full text-left">
               <thead className="border-b bg-gray-50">
                 <tr>
@@ -134,6 +139,7 @@ const AdminDashboard = () => {
               </thead>
 
               <tbody className="divide-y">
+
                 {users.length > 0 ? (
                   users.map((user) => (
                     <tr
@@ -162,17 +168,21 @@ const AdminDashboard = () => {
                               : "bg-green-100 text-green-700"
                           }`}
                         >
-                          {user.isBlocked ? "Blocked" : "Active"}
+                          {user.isBlocked
+                            ? "Blocked"
+                            : "Active"}
                         </span>
                       </td>
 
                       <td className="px-6 py-4">
+
                         {user.role === "admin" ? (
                           <span className="text-sm text-gray-400">
                             Admin
                           </span>
                         ) : (
                           <div className="flex flex-wrap gap-2">
+
                             {user.isBlocked ? (
                               <button
                                 onClick={() =>
@@ -201,8 +211,10 @@ const AdminDashboard = () => {
                             >
                               Reset Password
                             </button>
+
                           </div>
                         )}
+
                       </td>
                     </tr>
                   ))
@@ -216,10 +228,13 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 )}
+
               </tbody>
             </table>
+
           </div>
         </div>
+
       </div>
     </div>
   );

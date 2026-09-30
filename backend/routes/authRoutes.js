@@ -1,18 +1,25 @@
 const express = require("express");
-const { register, login, logout } = require("../controllers/authController");
+
+const {
+  register,
+  login,
+  adminLogin,
+  checkAuth,
+  logout
+} = require("../controllers/authController");
+
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 router.post("/register", register);
-router.post("/login", login);
-router.post("/logout", logout);
 
-router.get("/profile", authMiddleware, (req, res) => {
-  res.status(200).json({
-    message: "Authentication successful",
-    userId: req.user.id
-  });
-});
+router.post("/login", login);
+
+router.post("/admin-login", adminLogin);
+
+router.get("/check", authMiddleware, checkAuth);
+
+router.post("/logout", logout);
 
 module.exports = router;
